@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, FlatList, StyleSheet, View, Image } from 'react-native';
+import { Text, FlatList, StyleSheet, View, Image, TouchableOpacity } from 'react-native';
 import { f, auth, database, storage } from '../../config/config';
 
 class Profile extends React.Component {
@@ -24,6 +24,9 @@ class Profile extends React.Component {
     render() {
         return (
             <View style={styles.container}>
+                <View style={styles.header}>
+                    <Text>Profile</Text>
+                </View>
                 {this.state.loggedIn ? (
                     <Text>Hello, World!</Text>
                 ) : (
@@ -37,10 +40,17 @@ class Profile extends React.Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flex: 1
+    },
+    header: {
         justifyContent: 'center',
-        alignItems: 'center'
-    }
+        alignItems: 'center',
+        height: 70,
+        paddingTop: 30,
+        backgroundColor: 'white',
+        borderColor: 'lightgrey',
+        borderBottomWidth: 0.5
+    },
 })
 
 
