@@ -11,13 +11,14 @@ class Feed extends React.Component {
         usersRef: database.ref('users')
     }
 
-    componentDidMount = () => {
+    componentDidMount() {
         this.loadFeed();
     }
 
     loadFeed = () => {
         this.setState({
-            refresh: true,
+            refreshing: true,
+            loading: true,
             photo_feed: []
         })
 
@@ -27,23 +28,23 @@ class Feed extends React.Component {
             .then(snap => {
                 const exists = (snap.val() !== null);
                 if(exists) data = snap.val();
-                let photo_feed = this.state.photo_feed;
-                    for(let photo in data) {
-                        let photoObj = data[photo];
-                        this.state.usersRef.child(photoObj.author).once('value').then(snap => {
+                var photo_feed = this.state.photo_feed;
+                    for(var photo in data) {
+                        var photoObj = data[photo];
+                        this.state.usersRef.child(photoObj.author).child('username').once('value').then(snap => {
                             const exists = (snap.val() !== null);
                             if(exists) data = snap.val();
-                            console.log(data);
                             photo_feed.push({
                                 id: photo,
                                 url: photoObj.url,
                                 caption: photoObj.caption,
                                 posted: photoObj.posted,
-                                author: data.username
+                                author: data
                             })
                             this.setState({
-                                refresh: false,
-                                loading: false
+                                refreshing: false,
+                                loading: false,
+                                photo_feed
                             })
                         }).catch(err => console.log(err));
                     }
@@ -51,45 +52,86 @@ class Feed extends React.Component {
     }
 
     loadNewFeed = () => {
-        this.setState({
-            refresh: true
-        })
-        this.setState({
-            photo_feed: [5,6,7,8,9],
-            refresh: false
-        })
+        this.loadFeed();
     }
+
+    pluralaCheck = s => {
+        if(s === 1){
+            return 'ago'
+        }else{
+            return 's ago'
+        }
+    }
+
+    timeConverter = timestamp => {
+        const a = new Date(timestamp * 1000);
+        const seconds = Math.floor((new Date() - a) / 1000);
+        let interval = Math.floor(seconds / 31536000);
+
+        if(interval > 1){
+            return interval + ' year' + this.pluralaCheck(interval);
+        }
+
+        interval = Math.floor(seconds / 2592000);
+        if(interval > 1){
+            return interval + ' month' + this.pluralaCheck(interval);
+        }
+
+        interval = Math.floor(seconds / 86400);
+        if(interval > 1){
+            return interval + ' day' + this.pluralaCheck(interval);
+        }
+
+        interval = Math.floor(seconds / 3600);
+        if(interval > 1){
+            return interval + ' hour' + this.pluralaCheck(interval);
+        }
+
+        interval = Math.floor(seconds / 60);
+        if(interval > 1){
+            return interval + ' minute' + this.pluralaCheck(interval);
+        }
+
+        return Math.floor(seconds) + ' second' + this.pluralaCheck(interval);
+    }
+
     render() {
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
                     <Text>Feed</Text>
                 </View>
-                <FlatList 
-                    style={styles.feed}
-                    refreshing={this.state.refreshing}
-                    onRefresh={this.loadNewFeed}
-                    data={this.state.photo_feed}
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={({item, index})=> (
-                        <View key={index} style={styles.photoInfoWrapper}>
-                            <View style={styles.photoInfo}>
-                                <Text>sffsfs</Text>
-                                <Text>fsfsfsfs</Text>
+                {this.state.loading === true ? (
+                    <View>
+                        <Text>Loading...</Text>
+                    </View>
+                ) : (
+                    <FlatList 
+                        style={styles.feed}
+                        refreshing={this.state.refreshing}
+                        onRefresh={this.loadNewFeed}
+                        data={this.state.photo_feed}
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={({item, index})=> (
+                            <View key={index} style={styles.photoInfoWrapper}>
+                                <View style={styles.photoInfo}>
+                                    <Text>{this.timeConverter(item.posted)}</Text>
+                                    <Text>@{item.author}</Text>
+                                </View>
+                                <View>
+                                    <Image 
+                                        source={{uri: item.url}}
+                                        style={styles.image}
+                                    />
+                                </View>
+                                <View style={styles.imageBottom}>
+                                    <Text>Caption text here...</Text>
+                                    <Text style={styles.comments}>View Comment...</Text>
+                                </View>
                             </View>
-                            <View>
-                                <Image 
-                                    source={{uri: "https://source.unsplash.com/random/500x" + Math.floor((Math.random()*800) + 500) }}
-                                    style={styles.image}
-                                />
-                            </View>
-                            <View style={styles.imageBottom}>
-                                <Text>Caption text here...</Text>
-                                <Text style={styles.comments}>View Comment...</Text>
-                            </View>
-                        </View>
-                    )}
-                />
+                        )}
+                    />
+                )}
             </View>
         )
     }
