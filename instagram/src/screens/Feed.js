@@ -34,7 +34,6 @@ class Feed extends React.Component {
                         this.state.usersRef.child(photoObj.author).child('username').once('value').then(snap => {
                             const exists = (snap.val() !== null);
                             if(exists) data = snap.val();
-                            console.log(data)
                             photo_feed.push({
                                 id: photo,
                                 url: photoObj.url,
