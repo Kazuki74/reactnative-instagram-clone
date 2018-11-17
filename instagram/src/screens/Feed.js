@@ -28,18 +28,18 @@ class Feed extends React.Component {
             .then(snap => {
                 const exists = (snap.val() !== null);
                 if(exists) data = snap.val();
-                let photo_feed = this.state.photo_feed;
-                    for(let photo in data) {
-                        console.log(photo)
-                        let photoObj = data[photo];
+                var photo_feed = this.state.photo_feed;
+                    for(var photo in data) {
+                        var photoObj = data[photo];
                         this.state.usersRef.child(photoObj.author).once('value').then(snap => {
                             const exists = (snap.val() !== null);
                             if(exists) data = snap.val();
+                            console.log(data)
                             photo_feed.push({
                                 id: photo,
                                 url: photoObj.url,
                                 caption: photoObj.caption,
-                                posted: photoObj.posterd,
+                                posted: photoObj.posted,
                                 author: data.username
                             })
                             this.setState({
@@ -71,8 +71,8 @@ class Feed extends React.Component {
                     renderItem={({item, index})=> (
                         <View key={index} style={styles.photoInfoWrapper}>
                             <View style={styles.photoInfo}>
-                                <Text>sffsfs</Text>
-                                <Text>fsfsfsfs</Text>
+                                <Text>{item.posted}</Text>
+                                <Text>@{item.author}</Text>
                             </View>
                             <View>
                                 <Image 
