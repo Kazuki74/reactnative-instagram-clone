@@ -11,13 +11,14 @@ class Feed extends React.Component {
         usersRef: database.ref('users')
     }
 
-    componentDidMount = () => {
+    componentDidMount() {
         this.loadFeed();
     }
 
     loadFeed = () => {
         this.setState({
-            refresh: true,
+            refreshing: true,
+            loading: true,
             photo_feed: []
         })
 
@@ -29,21 +30,22 @@ class Feed extends React.Component {
                 if(exists) data = snap.val();
                 let photo_feed = this.state.photo_feed;
                     for(let photo in data) {
+                        console.log(photo)
                         let photoObj = data[photo];
                         this.state.usersRef.child(photoObj.author).once('value').then(snap => {
                             const exists = (snap.val() !== null);
                             if(exists) data = snap.val();
-                            console.log(data);
                             photo_feed.push({
                                 id: photo,
                                 url: photoObj.url,
                                 caption: photoObj.caption,
-                                posted: photoObj.posted,
+                                posted: photoObj.posterd,
                                 author: data.username
                             })
                             this.setState({
-                                refresh: false,
-                                loading: false
+                                refreshing: false,
+                                loading: false,
+                                photo_feed
                             })
                         }).catch(err => console.log(err));
                     }
@@ -51,14 +53,9 @@ class Feed extends React.Component {
     }
 
     loadNewFeed = () => {
-        this.setState({
-            refresh: true
-        })
-        this.setState({
-            photo_feed: [5,6,7,8,9],
-            refresh: false
-        })
+        this.loadFeed();
     }
+
     render() {
         return (
             <View style={styles.container}>
