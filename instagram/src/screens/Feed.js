@@ -56,37 +56,83 @@ class Feed extends React.Component {
         this.loadFeed();
     }
 
+    pluralaCheck = s => {
+        if(s === 1){
+            return 'ago'
+        }else{
+            return 's ago'
+        }
+    }
+
+    timeConverter = timestamp => {
+        const a = new Date(timestamp * 1000);
+        const seconds = Math.floor((new Date() - a) / 1000);
+        let interval = Math.floor(seconds / 31536000);
+
+        if(interval > 1){
+            return interval + ' year' + this.pluralaCheck(interval);
+        }
+
+        interval = Math.floor(seconds / 2592000);
+        if(interval > 1){
+            return interval + ' month' + this.pluralaCheck(interval);
+        }
+
+        interval = Math.floor(seconds / 86400);
+        if(interval > 1){
+            return interval + ' day' + this.pluralaCheck(interval);
+        }
+
+        interval = Math.floor(seconds / 3600);
+        if(interval > 1){
+            return interval + ' hour' + this.pluralaCheck(interval);
+        }
+
+        interval = Math.floor(seconds / 60);
+        if(interval > 1){
+            return interval + ' minute' + this.pluralaCheck(interval);
+        }
+
+        return Math.floor(seconds) + ' second' + this.pluralaCheck(interval);
+    }
+
     render() {
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
                     <Text>Feed</Text>
                 </View>
-                <FlatList 
-                    style={styles.feed}
-                    refreshing={this.state.refreshing}
-                    onRefresh={this.loadNewFeed}
-                    data={this.state.photo_feed}
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={({item, index})=> (
-                        <View key={index} style={styles.photoInfoWrapper}>
-                            <View style={styles.photoInfo}>
-                                <Text>{item.posted}</Text>
-                                <Text>@{item.author}</Text>
+                {this.state.loading === true ? (
+                    <View>
+                        <Text>Loading...</Text>
+                    </View>
+                ) : (
+                    <FlatList 
+                        style={styles.feed}
+                        refreshing={this.state.refreshing}
+                        onRefresh={this.loadNewFeed}
+                        data={this.state.photo_feed}
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={({item, index})=> (
+                            <View key={index} style={styles.photoInfoWrapper}>
+                                <View style={styles.photoInfo}>
+                                    <Text>{this.timeConverter(item.posted)}</Text>
+                                    <Text>@{item.author}</Text>
+                                </View>
+                                <View>
+                                    <Image 
+                                        source={{uri: item.url}}
+                                        style={styles.image}
+                                    />
+                                </View>
+                                <View style={styles.imageBottom}>
+                                    <Text>Caption text here...</Text>
+                                    <Text style={styles.comments}>View Comment...</Text>
+                                </View>
                             </View>
-                            <View>
-                                <Image 
-                                    source={{uri: "https://source.unsplash.com/random/500x" + Math.floor((Math.random()*800) + 500) }}
-                                    style={styles.image}
-                                />
-                            </View>
-                            <View style={styles.imageBottom}>
-                                <Text>Caption text here...</Text>
-                                <Text style={styles.comments}>View Comment...</Text>
-                            </View>
-                        </View>
-                    )}
-                />
+                        )}
+                    />
+                )}
             </View>
         )
     }
