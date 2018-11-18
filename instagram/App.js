@@ -21,7 +21,6 @@ export default class App extends React.Component {
   login = async() => {
     try{
       let user = await auth().signInWithEmailAndPassword('example@example.com', 'password');
-      console.log(user)
     }catch(err){
       console.log(err);
     }
