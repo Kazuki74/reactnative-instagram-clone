@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, FlatList, StyleSheet, View, Image } from 'react-native';
+import { Text, FlatList, StyleSheet, View, Image, TouchableOpacity } from 'react-native';
 import { f, auth, database, storage } from '../../config/config';
 
 class Feed extends React.Component {
@@ -39,7 +39,8 @@ class Feed extends React.Component {
                                 url: photoObj.url,
                                 caption: photoObj.caption,
                                 posted: photoObj.posted,
-                                author: data
+                                author: data,
+                                authorId: photoObj.author
                             })
                             this.setState({
                                 refreshing: false,
@@ -116,7 +117,9 @@ class Feed extends React.Component {
                             <View key={index} style={styles.photoInfoWrapper}>
                                 <View style={styles.photoInfo}>
                                     <Text>{this.timeConverter(item.posted)}</Text>
-                                    <Text>@{item.author}</Text>
+                                    <TouchableOpacity onPress={() => this.props.navigation.navigate('User', { userId: item.authorId })}>
+                                        <Text>@{item.author}</Text>
+                                    </TouchableOpacity>
                                 </View>
                                 <View>
                                     <Image 
@@ -126,7 +129,9 @@ class Feed extends React.Component {
                                 </View>
                                 <View style={styles.imageBottom}>
                                     <Text>Caption text here...</Text>
-                                    <Text style={styles.comments}>View Comment...</Text>
+                                    <TouchableOpacity onPress={() => this.props.navigation.navigate('Comments', { photoId: item.id })}>
+                                        <Text style={styles.comments}>[View Comment...]</Text>
+                                    </TouchableOpacity>
                                 </View>
                             </View>
                         )}
@@ -178,7 +183,8 @@ const styles = StyleSheet.create({
     },
     comments: {
         marginTop: 10,
-        textAlign: 'center'
+        textAlign: 'center',
+        color: 'blue'
     }
 })
 
