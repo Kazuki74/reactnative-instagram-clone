@@ -129,7 +129,9 @@ class Feed extends React.Component {
                                 </View>
                                 <View style={styles.imageBottom}>
                                     <Text>Caption text here...</Text>
-                                    <Text style={styles.comments}>View Comment...</Text>
+                                    <TouchableOpacity onPress={() => this.props.navigation.navigate('Comments', { photoId: item.id })}>
+                                        <Text style={styles.comments}>[View Comment...]</Text>
+                                    </TouchableOpacity>
                                 </View>
                             </View>
                         )}
@@ -181,7 +183,8 @@ const styles = StyleSheet.create({
     },
     comments: {
         marginTop: 10,
-        textAlign: 'center'
+        textAlign: 'center',
+        color: 'blue'
     }
 })
 
