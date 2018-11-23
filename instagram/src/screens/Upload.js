@@ -1,10 +1,19 @@
 import React from 'react';
-import { Text, FlatList, StyleSheet, View, Image } from 'react-native';
+import { Text, FlatList, StyleSheet, View, Image, TouchableOpacity } from 'react-native';
 import { f, auth, database, storage } from '../../config/config';
+import { Permissions, ImagePicker } from 'expo';
 
 class Upload extends React.Component {
     state = {
-        loggedIn: false
+        userId: f.auth().currentUser.uid,
+        loggedIn: false,
+        imageId: '0',
+        cameraStatus: "",
+        cameraRollStatus: "",
+        currentfFileType: "",
+        storageRef: storage.ref('users'), 
+    }
+
     s4 = () => {
         return Math.floor((1+ Math.random()) * 0x10000).toString(16).substring(1);
     }
@@ -67,11 +76,18 @@ class Upload extends React.Component {
     
     render() {
         return (
-            <View style={styles.container}>
+            <View style={{flex: 1}}>
                 {this.state.loggedIn ? (
-                    <Text>Hello, World!</Text>
+                    <View style={styles.container}>
+                        <TouchableOpacity onPress={() => this.findNewImage()}>
+                            <Text style={{fontSize: 28, paddingBottom: 5}}>Upload</Text>
+                            <Text>Select Photo</Text>
+                        </TouchableOpacity>
+                    </View>
                 ) : (
-                    <Text>You are not logged in</Text>
+                    <View style={styles.container}>
+                        <Text>You are not logged in</Text>
+                    </View>
                 )}
             </View>
         )
