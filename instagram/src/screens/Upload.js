@@ -5,6 +5,12 @@ import { f, auth, database, storage } from '../../config/config';
 class Upload extends React.Component {
     state = {
         loggedIn: false
+    s4 = () => {
+        return Math.floor((1+ Math.random()) * 0x10000).toString(16).substring(1);
+    }
+
+    uniqueId = () => {
+        return this.s4() + this.s4() + '-' + this.s4() + '-' + this.s4() + '-' + this.s4() + '-' + this.s4() + '-' + this.s4() + '-' + this.s4();
     }
 
     componentDidMount() {
