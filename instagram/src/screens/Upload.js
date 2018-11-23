@@ -49,6 +49,22 @@ class Upload extends React.Component {
         }
     }
 
+    uploadImage = async uri => {
+        const { userId, imageId, storageRef } = this.state;
+        const regEx = /(?:\.([^.]+))?$/;
+        const currentfFileType = regEx.exec(uri)[1];
+        this.setState({
+            currentfFileType
+        })
+        const response = await fetch(uri);
+        const blob = await response.blob();
+        const filePath = imageId + '.' + this.state.currentfFileType
+        const currentUserRef= storageRef.child(userId).child(`/img/${filePath}`);
+        currentUserRef.put(blob).on('state_changed', snap => {
+            console.log('Progress', snap.bytesTransferred, snap.totalBytes)
+        })
+    }
+    
     render() {
         return (
             <View style={styles.container}>
