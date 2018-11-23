@@ -27,6 +27,28 @@ class Upload extends React.Component {
         })
     }
 
+    _checkPermissions = async () => {
+        const { cameraStatus } = await Permissions.askAsync(Permissions.CAMERA);
+        const { cameraRollStatus } = await Permissions.askAsync(Permissions.CAMERA_ROLL);        
+        this.setState({
+            cameraStatus, cameraRollStatus
+        })
+    }
+
+    findNewImage = async () => {
+        this._checkPermissions();
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: 'Images',
+            allowsEditing: true,
+            quality: 1
+        })
+        if(result && !result.cancelled) {
+            this.setState({
+                imageId: this.uniqueId()
+            }, () => this.uploadImage(result.uri))    
+        }
+    }
+
     render() {
         return (
             <View style={styles.container}>
