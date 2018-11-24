@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, FlatList, StyleSheet, View, Image, TouchableOpacity } from 'react-native';
+import { Text, FlatList, StyleSheet, View, Image, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import { f, auth, database, storage } from '../../config/config';
 import { Permissions, ImagePicker } from 'expo';
 
@@ -13,6 +13,10 @@ class Upload extends React.Component {
         currentfFileType: "",
         storageRef: storage.ref('users'), 
         progress: 0,
+        imageSelected: false,
+        uploading: false,
+        caption: '',
+        imageUri: ''
     }
 
     s4 = () => {
@@ -56,8 +60,10 @@ class Upload extends React.Component {
         console.log(result)
         if(result && !result.cancelled) {
             this.setState({
-                imageId: this.uniqueId()
-            }, () => this.uploadImage(result.uri))    
+                imageId: this.uniqueId(),
+                imageUri: result.uri,
+                imageSelected: true
+            })    
         }
     }
 
@@ -99,7 +105,7 @@ class Upload extends React.Component {
                 console.log(err)
             }, () => {
                 uploadTask.snapshot.ref.getDownloadURL().then(downloadURL => {
-                    this.processUpload(downloadURL);
+                    console.log(downloadURL);
                 })
                 .catch(err => {
                     console.log(err);
@@ -109,17 +115,43 @@ class Upload extends React.Component {
     }
     
     render() {
-        this.state.storageRef.child(this.state.userId).child('/img').child('3dc7b77d-89b7-98a0-6300-44b9-cbd4-b0fb.jpg').getDownloadURL().then(downloadURL => {
-            console.log(downloadURL)
-        })
         return (
             <View style={{flex: 1}}>
                 {this.state.loggedIn ? (
                     <View style={styles.container}>
-                        <TouchableOpacity onPress={() => this.findNewImage()}>
-                            <Text style={{fontSize: 28, paddingBottom: 5}}>Upload</Text>
-                            <Text>Select Photo</Text>
-                        </TouchableOpacity>
+                        { this.state.imageSelected === true ? (
+                            <View style={{flex: 1}}>
+                                <View style={{ justifyContent: 'center', alignItems: 'center', height: 70, paddingTop: 30, backgroundColor: 'white', borderColor: 'lightgrey', borderBottomWidth: 0.5}}>
+                                    <Text>Upload</Text>
+                                </View>
+                                <View style={{ padding: 5 }}>
+                                    <Text style={{marginTop: 5}}>Caption...</Text>
+                                    <TextInput 
+                                        editable={true}
+                                        placeholder={"Enter your caption..."}
+                                        maxLength={150}
+                                        multiline={true}
+                                        numberOfLines={4}
+                                        onChangeText={text => this.setState({ caption: text })}
+                                        style={{ 
+                                            marginVertical: 10,
+                                            height: 100,
+                                            padding: 5,
+                                            borderColor: 'grey',
+                                            borderWidth: 1,
+                                            borderRadius: 3,
+                                            backgroundColor: 'white',
+                                            color: 'black'
+                                        }}
+                                    />
+                                </View>
+                            </View>
+                        ) : (
+                            <TouchableOpacity onPress={() => this.findNewImage()}>
+                                <Text style={{fontSize: 28, paddingBottom: 5}}>Upload</Text>
+                                <Text>Select Photo</Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
                 ) : (
                     <View style={styles.container}>
