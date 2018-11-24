@@ -64,6 +64,8 @@ class Upload extends React.Component {
                 imageUri: result.uri,
                 imageSelected: true
             })    
+        } else {
+            this.setState({ imageSelected: false })
         }
     }
 
