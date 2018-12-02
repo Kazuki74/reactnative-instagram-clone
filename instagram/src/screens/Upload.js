@@ -11,7 +11,8 @@ class Upload extends React.Component {
         cameraStatus: "",
         cameraRollStatus: "",
         currentfFileType: "",
-        storageRef: storage.ref('users'), 
+        storageRef: storage.ref('users'),
+        photosRef: database.ref('photos'),
         progress: 0,
         imageSelected: false,
         uploading: false,
@@ -30,9 +31,10 @@ class Upload extends React.Component {
     componentDidMount() {
         f.auth().onAuthStateChanged(user => {
             if(user) {
+                const userId = f.auth().currentUser.uid;
                 this.setState({
                     loggedIn: true,
-                    userId: f.auth().currentUser.uid
+                    userId
                 })
             } else {
                 this.setState({
@@ -106,11 +108,8 @@ class Upload extends React.Component {
             }, err => {
                 console.log(err);
             }, () => {
-                this.setState({
-                    uploading: false
-                })
                 uploadTask.snapshot.ref.getDownloadURL().then(downloadURL => {
-                    console.log('File available at ' + downloadURL);
+                    this.processUpload(downloadURL);
                 })
                 .catch(err => {
                     console.log(err);
@@ -119,11 +118,41 @@ class Upload extends React.Component {
         )
     }
 
+    processUpload = imageUrl => {
+        const { userId, caption, photosRef, imageId, currentUserPhotosRef } = this.state;
+        const dateTime = Date.now();
+        const timestamp = Math.floor(dateTime / 1000);
+
+        const photoObj = {
+            author: userId,
+            caption,
+            posted: timestamp,
+            url: imageUrl
+        }
+
+        database.ref('users').child(userId).child('photos').child(imageId).set(photoObj);
+
+        photosRef.child(imageId).set(photoObj);
+
+        this.setState({
+            uploading: false,
+            imageSelected: false,
+            uri: '',
+            caption: ''
+        }, () => {
+            alert('Your photo has been succesfully uploaded!');
+        })
+    }
+
     uploadPublish = () => {
-        if(this.state.caption !== '') {
-            this.uploadImage(this.state.imageUri);
+        if(this.state.uploading === false){
+            if(this.state.caption !== '') {
+                this.uploadImage(this.state.imageUri);
+            } else {
+                alert('Please enter a caption.');
+            }
         } else {
-            alert('Please enter a caption.');
+            alert('Your photo is now uploading.')
         }
     }
     
