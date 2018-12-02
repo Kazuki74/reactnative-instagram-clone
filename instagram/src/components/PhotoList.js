@@ -15,10 +15,8 @@ class PhotoList extends React.Component {
     componentDidMount = () => {
         const { isUser, userId } = this.props;
         if(isUser === true) {
-            console.log('fired!')
             this.loadFeed(userId);
         } else {
-            console.log('normaly fired!')
             this.loadFeed('');
         }
     }
