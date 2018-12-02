@@ -7,7 +7,10 @@ import PhotoList from '../components/PhotoList';
 class Profile extends React.Component {
     state = {
         loggedIn: false,
-        userId: ''
+        userId: '',
+        currentUserName: '',
+        currentUserUsername: '',
+        currentUserAvatar: '',
     }
 
     componentDidMount() {
@@ -16,6 +19,8 @@ class Profile extends React.Component {
                 this.setState({
                     loggedIn: true,
                     userId: user.uid
+                }, () => {
+                    this.setCurrentUserInfo(user.uid);
                 })
             } else {
                 this.setState({
@@ -25,8 +30,30 @@ class Profile extends React.Component {
         })
     }
 
+    setCurrentUserInfo = userId => {
+        const currentUserRef = database.ref('users').child(userId);
+        
+        currentUserRef.child('name').once('value').then(snap => {
+            this.setState({
+                currentUserName: snap.val()
+            })
+        })
+
+        currentUserRef.child('username').once('value').then(snap => {
+            this.setState({
+                currentUserUsername: snap.val()
+            })
+        })
+
+        currentUserRef.child('avatar').once('value').then(snap => {
+            this.setState({
+                currentUserAvatar: snap.val()
+            })
+        })
+    }
+
     render() {
-        const { userId } = this.state;
+        const { userId, currentUserAvatar, currentUserName, currentUserUsername } = this.state;
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
@@ -36,12 +63,12 @@ class Profile extends React.Component {
                     <React.Fragment>
                         <View style={{justifyContent: 'space-evenly', alignItems: 'center', flexDirection: 'row'}}>
                             <Image
-                                source={{uri: "https://images.unsplash.com/photo-1542360632-85c101674393?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=3d3f62e80c37194d51641f94d5bdc8a4&auto=format&fit=crop&w=3288&q=80"}}
+                                source={{uri: currentUserAvatar}}
                                 style={{marginLeft: 10, width: 100, height: 100, borderRadius: 50, marginTop: 10}}
                             />
                             <View style={{marginRight: 10}}>
-                                <Text>Name</Text>
-                                <Text>@user</Text>
+                                <Text>{currentUserName}</Text>
+                                <Text>@{currentUserUsername}</Text>
                             </View>
                         </View>
                         <View style={{paddingBottom: 20, borderBottomWidth: 0.5}}>
