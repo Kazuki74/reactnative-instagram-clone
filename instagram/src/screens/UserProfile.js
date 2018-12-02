@@ -2,6 +2,8 @@ import React from 'react';
 import { Text, FlatList, StyleSheet, View, Image, TouchableOpacity } from 'react-native';
 import { f, auth, database, storage } from '../../config/config';
 
+import PhotoList from '../components/PhotoList';
+
 class Profile extends React.Component {
     state = {
         loaded: false,
@@ -63,6 +65,7 @@ class Profile extends React.Component {
     }
 
     render() {
+        const userId = this.props.navigation.state.params.userId;
         const { name, username, avatar} = this.state;
         return (
             <View style={styles.container}>
@@ -81,11 +84,7 @@ class Profile extends React.Component {
                         <Text>@{username}</Text>
                     </View>
                 </View>
-                <View style={{flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "green"}}>
-                    <Text style={{ color: "black" }}>
-                        Loaded images...
-                    </Text>
-                </View>
+                <PhotoList isUser={true} userId={userId} navigation={this.props.navigation} />
             </View>
         )
     }

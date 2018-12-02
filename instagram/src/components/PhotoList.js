@@ -1,19 +1,24 @@
 import React from 'react';
 import { Text, FlatList, StyleSheet, View, Image, TouchableOpacity } from 'react-native';
 import { f, auth, database, storage } from '../../config/config';
-import { Photolist } from '../components/PhotoList';
 
-class Feed extends React.Component {
+class PhotoList extends React.Component {
+
     state = {
-        photo_feed: [0,1,2,3,4],
         refreshing: false,
         loading: false,
+        photo_feed: [],
         photosRef: database.ref('photos'),
         usersRef: database.ref('users')
     }
 
-    componentDidMount() {
-        this.loadFeed();
+    componentDidMount = () => {
+        const { isUser, userId } = this.props;
+        if(isUser === true) {
+            this.loadFeed(userId);
+        } else {
+            this.loadFeed('');
+        }
     }
 
     updateFlatlist = (photo_feed, data, photo) => {
@@ -37,14 +42,22 @@ class Feed extends React.Component {
         }).catch(err => console.log(err));
     }
 
-    loadFeed = () => {
+    loadFeed = (userId = '') => {
         this.setState({
             refreshing: true,
             loading: true,
             photo_feed: []
         })
 
-        this.state.photosRef
+        let loadRef;
+
+        if (userId !== '') {
+            loadRef = database.ref('users').child(userId).child('photos');
+        } else {
+            loadRef = database.ref('photos');
+        }
+
+        loadRef
             .orderByChild('posted')
             .once('value')
             .then(snap => {
@@ -55,10 +68,6 @@ class Feed extends React.Component {
                         this.updateFlatlist(photo_feed, data, photo);
                     }
             }).catch(err => console.log(err));
-    }
-
-    loadNewFeed = () => {
-        this.loadFeed();
     }
 
     pluralaCheck = s => {
@@ -147,6 +156,7 @@ class Feed extends React.Component {
     }
 }
 
+
 const styles = StyleSheet.create({
     container: {
         flex: 1
@@ -193,4 +203,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default Feed;
+export default PhotoList;

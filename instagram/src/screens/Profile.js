@@ -2,16 +2,20 @@ import React from 'react';
 import { Text, FlatList, StyleSheet, View, Image, TouchableOpacity } from 'react-native';
 import { f, auth, database, storage } from '../../config/config';
 
+import PhotoList from '../components/PhotoList';
+
 class Profile extends React.Component {
     state = {
-        loggedIn: false
+        loggedIn: false,
+        userId: ''
     }
 
     componentDidMount() {
         f.auth().onAuthStateChanged(user => {
             if(user) {
                 this.setState({
-                    loggedIn: true
+                    loggedIn: true,
+                    userId: user.uid
                 })
             } else {
                 this.setState({
@@ -22,6 +26,7 @@ class Profile extends React.Component {
     }
 
     render() {
+        const { userId } = this.state;
         return (
             <View style={styles.container}>
                 <View style={styles.header}>
@@ -59,11 +64,7 @@ class Profile extends React.Component {
                                 </Text>
                             </TouchableOpacity>
                         </View>
-                        <View style={{flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#eee"}}>
-                            <Text>
-                                Loaded images...
-                            </Text>
-                        </View>
+                        <PhotoList isUser={true} userId={userId} navigation={this.props.navigation}/>
                     </React.Fragment>
                 ) : (
                     <Text>You are not logged in</Text>
