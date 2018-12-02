@@ -15,6 +15,27 @@ class Feed extends React.Component {
         this.loadFeed();
     }
 
+    updateFlatlist = (photo_feed, data, photo) => {
+        var photoObj = data[photo];
+        this.state.usersRef.child(photoObj.author).child('username').once('value').then(snap => {
+            const exists = (snap.val() !== null);
+            if(exists) data = snap.val();
+            photo_feed.push({
+                id: photo,
+                url: photoObj.url,
+                caption: photoObj.caption,
+                posted: photoObj.posted,
+                author: data,
+                authorId: photoObj.author
+            })
+            this.setState({
+                refreshing: false,
+                loading: false,
+                photo_feed
+            })
+        }).catch(err => console.log(err));
+    }
+
     loadFeed = () => {
         this.setState({
             refreshing: true,
@@ -30,24 +51,7 @@ class Feed extends React.Component {
                 if(exists) data = snap.val();
                 var photo_feed = this.state.photo_feed;
                     for(var photo in data) {
-                        var photoObj = data[photo];
-                        this.state.usersRef.child(photoObj.author).child('username').once('value').then(snap => {
-                            const exists = (snap.val() !== null);
-                            if(exists) data = snap.val();
-                            photo_feed.push({
-                                id: photo,
-                                url: photoObj.url,
-                                caption: photoObj.caption,
-                                posted: photoObj.posted,
-                                author: data,
-                                authorId: photoObj.author
-                            })
-                            this.setState({
-                                refreshing: false,
-                                loading: false,
-                                photo_feed
-                            })
-                        }).catch(err => console.log(err));
+                        this.updateFlatlist(photo_feed, data, photo);
                     }
             }).catch(err => console.log(err));
     }
@@ -128,7 +132,7 @@ class Feed extends React.Component {
                                     />
                                 </View>
                                 <View style={styles.imageBottom}>
-                                    <Text>Caption text here...</Text>
+                                    <Text>{item.caption}</Text>
                                     <TouchableOpacity onPress={() => this.props.navigation.navigate('Comments', { photoId: item.id })}>
                                         <Text style={styles.comments}>[View Comment...]</Text>
                                     </TouchableOpacity>
